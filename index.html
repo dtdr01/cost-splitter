@@ -76,9 +76,19 @@
     color: var(--text);
   }
 
+  #header-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.7fr 0.7fr 0.6fr 0.8fr auto;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+    color: var(--accent);
+  }
+
   .player-row {
     display: grid;
-    grid-template-columns: 1.3fr 0.9fr 0.9fr 0.6fr 0.8fr auto;
+    grid-template-columns: 1.4fr 0.7fr 0.7fr 0.6fr 0.8fr auto;
     align-items: center;
     gap: 4px;
     background: var(--card-bg);
@@ -103,8 +113,8 @@
   }
 
   @media (max-width: 600px) {
-    .player-row {
-      grid-template-columns: 1fr 0.8fr 0.8fr 0.6fr 0.8fr auto;
+    #header-row, .player-row {
+      grid-template-columns: 1fr 0.6fr 0.6fr 0.5fr 0.7fr auto;
       font-size: 0.8rem;
     }
   }
@@ -117,6 +127,15 @@
     <button id="exportCSV">Export CSV</button>
     <input type="number" id="totalCost" placeholder="Total Cost" style="flex:1; min-width:100px;">
     <button id="toggleTheme" style="background:#444;">🌗</button>
+  </div>
+
+  <div id="header-row">
+    <div>Player</div>
+    <div>Joined</div>
+    <div>Left</div>
+    <div>Min</div>
+    <div>Cost</div>
+    <div></div>
   </div>
 
   <div id="players"></div>
