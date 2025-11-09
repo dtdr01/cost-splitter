@@ -1,381 +1,261 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Time Splitter</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Time Splitter</title>
 
-  <!-- Mobile & PWA meta -->
-  <meta name="theme-color" content="#ffffff"/>
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Time Splitter" />
+<link rel="manifest" href="data:application/manifest+json,{ 
+  &quot;name&quot;: &quot;Time Splitter&quot;, 
+  &quot;short_name&quot;: &quot;Splitter&quot;, 
+  &quot;start_url&quot;: &quot;.&quot;, 
+  &quot;display&quot;: &quot;standalone&quot;, 
+  &quot;background_color&quot;: &quot;#f2f2f2&quot;, 
+  &quot;theme_color&quot;: &quot;#2563eb&quot;, 
+  &quot;icons&quot;: [{ &quot;src&quot;: &quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%232563eb'/><rect x='20' y='45' width='60' height='10' fill='white'/></svg>&quot;, &quot;sizes&quot;: &quot;192x192&quot;, &quot;type&quot;: &quot;image/svg+xml&quot; }] 
+}" />
+<meta name="theme-color" content="#2563eb" />
 
-  <style>
-    :root{
-      --bg:#ffffff;
-      --text:#111827;
-      --muted:#6b7280;
-      --accent:#1f6feb; /* soft blue */
-      --card:#f8fafc;
-      --radius:12px;
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --text: #222;
+    --card-bg: #fff;
+    --border: #ddd;
+    --accent: #2563eb;
+    --input-bg: #fff;
+  }
+
+  body.dark {
+    --bg: #121212;
+    --text: #eee;
+    --card-bg: #1e1e1e;
+    --border: #333;
+    --input-bg: #1b1b1b;
+  }
+
+  body {
+    font-family: system-ui, Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  #controls {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  button.small {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  input {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 0.85rem;
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--text);
+  }
+
+  .player-row {
+    display: grid;
+    grid-template-columns: 1.3fr 0.9fr 0.9fr 0.6fr 0.8fr auto;
+    align-items: center;
+    gap: 4px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 6px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  #summary {
+    margin-top: 10px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px solid var(--border);
+  }
+
+  #summary p {
+    margin: 2px 0;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 600px) {
+    .player-row {
+      grid-template-columns: 1fr 0.8fr 0.8fr 0.6fr 0.8fr auto;
+      font-size: 0.8rem;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Roboto,Arial;}
-    .app{max-width:920px;margin:0 auto;padding:14px;padding-bottom:90px;}
-    header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(180deg,#e8f0ff,#d6e9ff);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .title{font-weight:700;font-size:1.15rem;line-height:1;}
-    .subtitle{font-size:0.85rem;color:var(--muted)}
-
-    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .field{flex:1;min-width:140px}
-    input[type=number], input[type=time], input[type=text], button{
-      width:100%;padding:12px;border-radius:10px;border:1px solid #e6edf6;background:white;font-size:15px;
-    }
-    .row{display:flex;gap:8px}
-    .actions{display:flex;gap:8px;margin-top:8px}
-    .btn{background:var(--accent);color:white;border:none;padding:12px;border-radius:10px;font-weight:600}
-    .btn.secondary{background:transparent;color:var(--accent);border:1px solid #dbeafe}
-    .small{padding:8px;font-size:14px;border-radius:9px}
-
-    /* Player cards */
-    .players{margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px}
-    @media(min-width:720px){ .players{grid-template-columns:1fr 1fr} }
-    .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 1px 0 rgba(0,0,0,0.03);display:flex;flex-direction:column;gap:8px}
-    .card .row-between{display:flex;justify-content:space-between;align-items:center}
-    .card label{font-size:12px;color:var(--muted);margin-bottom:4px}
-    .card input[type=time], .card input[type=text]{padding:10px;border-radius:8px;border:1px solid #e6edf6;background:white}
-
-    .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .badge{background:rgba(31,111,235,0.1);color:var(--accent);padding:6px 8px;border-radius:999px;font-weight:600;font-size:13px}
-
-    footer{position:fixed;left:0;right:0;bottom:0;padding:12px;backdrop-filter:blur(6px);background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.95));border-top:1px solid #eee;display:flex;gap:8px;align-items:center;justify-content:space-between;max-width:920px;margin:0 auto;}
-    .summary{display:flex;flex-direction:column}
-    .summary .big{font-weight:700;font-size:16px}
-    .muted{color:var(--muted);font-size:13px}
-
-    .card .remove{background:transparent;border:0;color:#ef4444;font-weight:700;padding:6px;border-radius:8px}
-
-    .empty{padding:22px;border-radius:12px;text-align:center;color:var(--muted);background:linear-gradient(180deg,#fbfdff,#f8fbff)}
-
-    /* small helper */
-    .tiny{font-size:12px;color:var(--muted)}
-  </style>
+  }
+</style>
 </head>
+
 <body>
-  <div class="app" id="app">
-    <header>
-      <div class="logo" aria-hidden="true">
-        <!-- embedded SVG icon (blue paddle) -->
-        <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect x="6" y="12" width="36" height="24" rx="6" fill="#1f6feb"/>
-          <rect x="28" y="36" width="8" height="16" rx="4" fill="#6b7280"/>
-          <circle cx="50" cy="18" r="6" fill="#ffffff" stroke="#cfe1ff" stroke-width="1.5"/>
-        </svg>
-      </div>
-      <div>
-        <div class="title">Time Splitter</div>
-        <div class="subtitle">Split session cost by minutes played</div>
-      </div>
-    </header>
-
-    <section class="controls">
-      <div class="field" style="flex:0 0 140px">
-        <label class="tiny">Total cost</label>
-        <input id="totalCost" type="number" step="0.01" placeholder="e.g. 100.00" inputmode="decimal" />
-      </div>
-      <div class="field" style="flex:0 0 140px">
-        <label class="tiny">Session start</label>
-        <input id="sessionStart" type="time" />
-      </div>
-      <div class="field" style="flex:0 0 140px">
-        <label class="tiny">Session end</label>
-        <input id="sessionEnd" type="time" />
-      </div>
-
-      <div style="flex:1"></div>
-
-      <div class="actions" style="align-items:flex-end">
-        <button id="addPlayer" class="btn small">+ Player</button>
-        <button id="exportCsv" class="btn secondary small">Export CSV</button>
-      </div>
-    </section>
-
-    <main class="players" id="playersContainer">
-      <div class="empty" id="emptyState">No players yet — tap <strong>+ Player</strong> to add.</div>
-    </main>
+  <div id="controls">
+    <button id="addPlayer">+ Player</button>
+    <button id="exportCSV">Export CSV</button>
+    <input type="number" id="totalCost" placeholder="Total Cost" style="flex:1; min-width:100px;">
+    <button id="toggleTheme" style="background:#444;">🌗</button>
   </div>
 
-  <footer>
-    <div class="summary">
-      <div class="big" id="totalMinutes">0 min</div>
-      <div class="muted">Total minutes</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div style="text-align:right;margin-right:8px">
-        <div class="tiny">Cost / min</div>
-        <div id="costPerMin" class="big">0.000</div>
-      </div>
-      <button id="recalc" class="btn">Recalculate</button>
-    </div>
-  </footer>
+  <div id="players"></div>
+
+  <div id="summary">
+    <p><strong>Session Start:</strong> <span id="sessionStart">–</span></p>
+    <p><strong>Session End:</strong> <span id="sessionEnd">–</span></p>
+    <p><strong>Total Minutes:</strong> <span id="totalMinutes">0</span></p>
+  </div>
 
 <script>
-// ------------------ Base64 / Data icons and PWA manifest setup ------------------
-// We'll create a manifest blob (so file remains single-file).
-const manifestJSON = {
-  "name":"Time Splitter",
-  "short_name":"TimeSplitter",
-  "start_url":".",
-  "display":"standalone",
-  "background_color":"#ffffff",
-  "theme_color":"#ffffff",
-  "icons":[
-    {"src":"data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 64 64'><rect x='6' y='12' width='36' height='24' rx='6' fill='#1f6feb'/><rect x='28' y='36' width='8' height='16' rx='4' fill='#6b7280'/><circle cx='50' cy='18' r='6' fill='#ffffff' stroke='#cfe1ff' stroke-width='1.5'/></svg>`), "sizes":"192x192", "type":"image/svg+xml"}
-  ]
-};
-const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
-const manifestURL = URL.createObjectURL(manifestBlob);
-const link = document.createElement('link'); link.rel = 'manifest'; link.href = manifestURL; document.head.appendChild(link);
-
-// Add apple-touch-icon meta
-const appleIconLink = document.createElement('link');
-appleIconLink.rel = 'apple-touch-icon';
-appleIconLink.href = manifestJSON.icons[0].src;
-document.head.appendChild(appleIconLink);
-
-// ------------------ Service Worker (inline creation via blob) ------------------
-const swCode = `
-const CACHE_NAME = 'time-splitter-cache-v1';
-const OFFLINE_URL = '.';
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll([OFFLINE_URL]))
-  );
-  self.skipWaiting();
-});
-self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
-});
-self.addEventListener('fetch', event => {
-  const req = event.request;
-  // Only handle GET requests
-  if (req.method !== 'GET') return;
-  event.respondWith(
-    caches.match(req).then(cached => {
-      if (cached) return cached;
-      return fetch(req).then(resp => {
-        // optional: add to cache
-        return resp;
-      }).catch(()=>caches.match(OFFLINE_URL));
-    })
-  );
-});
-`;
-const swBlob = new Blob([swCode], {type: 'application/javascript'});
-const swUrl = URL.createObjectURL(swBlob);
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(swUrl).catch(()=>{/* silent */});
-}
-
-// ------------------ App logic ------------------
-const playersContainer = document.getElementById('playersContainer');
-const emptyState = document.getElementById('emptyState');
+const playersDiv = document.getElementById('players');
 const totalCostInput = document.getElementById('totalCost');
-const sessionStart = document.getElementById('sessionStart');
-const sessionEnd = document.getElementById('sessionEnd');
+const sessionStartEl = document.getElementById('sessionStart');
+const sessionEndEl = document.getElementById('sessionEnd');
 const totalMinutesEl = document.getElementById('totalMinutes');
-const costPerMinEl = document.getElementById('costPerMin');
-const addPlayerBtn = document.getElementById('addPlayer');
-const exportCsvBtn = document.getElementById('exportCsv');
-const recalcBtn = document.getElementById('recalc');
+let players = JSON.parse(localStorage.getItem('timeSplitterPlayers') || '[]');
+let darkMode = localStorage.getItem('timeSplitterDark') === 'true';
 
-function timeToMinutes(t){ if(!t) return null; const parts=t.split(':'); return parseInt(parts[0]||0)*60 + parseInt(parts[1]||0); }
-function minutesToHHMM(m){ const hh=Math.floor(m/60)%24; const mm=m%60; return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
-function createId(){ return Math.random().toString(36).slice(2,9); }
+if (darkMode) document.body.classList.add('dark');
 
-function renderEmptyCheck(){ if(playersContainer.querySelectorAll('.card').length===0){ emptyState.style.display='block'; } else { emptyState.style.display='none'; } }
+document.getElementById('toggleTheme').onclick = () => {
+  document.body.classList.toggle('dark');
+  darkMode = document.body.classList.contains('dark');
+  localStorage.setItem('timeSplitterDark', darkMode);
+};
 
-function makePlayerCard(id, name='', start='', end=''){
-  const card = document.createElement('div');
-  card.className='card';
-  card.dataset.id = id;
-  card.innerHTML = `
-    <div class="row-between"><input class="pname" type="text" placeholder="Player name" value="${name}" style="font-weight:700;font-size:15px;border:none;background:transparent;padding:0"/></div>
-    <div class="meta">
-      <div style="flex:1">
-        <label>Start</label>
-        <input class="pstart" type="time" value="${start}" />
-      </div>
-      <div style="flex:1">
-        <label>End</label>
-        <input class="pend" type="time" value="${end}" />
-      </div>
-      <div style="width:88px;text-align:center">
-        <label>Minutes</label>
-        <div class="badge pmins">0</div>
-      </div>
-      <div style="width:96px;text-align:center">
-        <label>Cost</label>
-        <div class="badge pcost">0.00</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
-      <button class="remove tiny">Remove</button>
-    </div>
-  `;
-  // events
-  card.querySelectorAll('input').forEach(i=>i.addEventListener('input', calc));
-  card.querySelector('.remove').addEventListener('click', ()=>{ card.remove(); calc(); renderEmptyCheck(); saveState(); });
-  return card;
-}
+function renderPlayers() {
+  playersDiv.innerHTML = '';
+  const totalMins = calcTotalMinutes();
+  const totalCost = parseFloat(totalCostInput.value) || 0;
 
-function addPlayer(name='', start='', end=''){
-  const id = createId();
-  const card = makePlayerCard(id, name, start, end);
-  playersContainer.appendChild(card);
-  renderEmptyCheck();
-  saveState();
-  // focus name input
-  setTimeout(()=>{ const inp = card.querySelector('.pname'); if(inp) inp.focus(); },50);
+  players.forEach((p, i) => {
+    const mins = (p.start && p.end) ? calcMinutes(p.start, p.end) : 0;
+    const cost = totalMins > 0 ? (totalCost * mins / totalMins).toFixed(2) : '';
+
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <input type="text" value="${p.name||''}" placeholder="Name" onchange="updatePlayer(${i}, 'name', this.value)">
+      <input type="time" value="${p.start||''}" onchange="updatePlayer(${i}, 'start', this.value)">
+      <input type="time" value="${p.end||''}" onchange="updatePlayer(${i}, 'end', this.value)">
+      <input type="number" value="${mins||''}" readonly placeholder="Min">
+      <input type="number" value="${cost}" readonly placeholder="Cost">
+      <button class="small" onclick="removePlayer(${i})">✖</button>
+    `;
+    playersDiv.appendChild(row);
+  });
+
   calc();
 }
 
-// initial state: empty
-renderEmptyCheck();
-
-addPlayerBtn.addEventListener('click', ()=> addPlayer());
-
-function calc(){
-  const cards = [...playersContainer.querySelectorAll('.card')];
-  let sumMinutes = 0;
-  let minStart = null, maxEnd = null;
-  const players = [];
-  cards.forEach(card => {
-    const name = card.querySelector('.pname').value || '';
-    const s = card.querySelector('.pstart').value;
-    const e = card.querySelector('.pend').value;
-    let mins = 0;
-    if (s && e){
-      let sm = timeToMinutes(s), em = timeToMinutes(e);
-      if (em < sm) em += 24*60;
-      mins = Math.max(0, em - sm);
-      if (minStart === null || sm < minStart) minStart = sm;
-      if (maxEnd === null || em > maxEnd) maxEnd = em;
-    }
-    card.querySelector('.pmins').textContent = mins;
-    players.push({card, name, mins, start:s, end:e});
-    sumMinutes += mins;
-  });
-
-  // Auto-set session start/end from players if available
-  if(minStart !== null && maxEnd !== null){
-    sessionStart.value = minutesToHHMM(minStart);
-    sessionEnd.value = minutesToHHMM(maxEnd % (24*60));
-  } else {
-    // leave as user-set or empty
-  }
-
-  const totalCost = parseFloat(totalCostInput.value) || 0;
-  const costPerMin = sumMinutes > 0 ? totalCost / sumMinutes : 0;
-  players.forEach(p => {
-    const c = Math.round((p.mins * costPerMin + Number.EPSILON) * 100) / 100;
-    p.card.querySelector('.pcost').textContent = c.toFixed(2);
-  });
-
-  totalMinutesEl.textContent = sumMinutes + ' min';
-  costPerMinEl.textContent = costPerMin.toFixed(3);
-  saveState();
+function updatePlayer(i, key, value) {
+  players[i][key] = value;
+  save();
+  renderPlayers();
 }
 
-recalcBtn.addEventListener('click', calc);
+function addPlayer() {
+  players.push({name:'', start:'', end:''});
+  save();
+  renderPlayers();
+}
 
-exportCsvBtn.addEventListener('click', ()=>{
+function removePlayer(i) {
+  players.splice(i, 1);
+  save();
+  renderPlayers();
+}
+
+function save() {
+  localStorage.setItem('timeSplitterPlayers', JSON.stringify(players));
+}
+
+function calcMinutes(start, end) {
+  const s = new Date('1970-01-01T' + start + ':00');
+  const e = new Date('1970-01-01T' + end + ':00');
+  let diff = (e - s) / 60000;
+  if (diff < 0) diff += 1440;
+  return diff;
+}
+
+function calcTotalMinutes() {
+  return players.reduce((sum, p) => {
+    if (p.start && p.end) sum += calcMinutes(p.start, p.end);
+    return sum;
+  }, 0);
+}
+
+function calc() {
+  let totalMins = 0;
+  let minTime = null;
+  let maxTime = null;
+  players.forEach(p => {
+    if(p.start && p.end) {
+      const start = new Date('1970-01-01T' + p.start + ':00');
+      const end = new Date('1970-01-01T' + p.end + ':00');
+      let diff = (end - start) / 60000;
+      if (diff < 0) diff += 1440;
+      totalMins += diff;
+      if(!minTime || start < minTime) minTime = start;
+      if(!maxTime || end > maxTime) maxTime = end;
+    }
+  });
+  totalMinutesEl.textContent = totalMins;
+  sessionStartEl.textContent = minTime ? minTime.toTimeString().substring(0,5) : '–';
+  sessionEndEl.textContent = maxTime ? maxTime.toTimeString().substring(0,5) : '–';
+}
+
+document.getElementById('addPlayer').onclick = addPlayer;
+totalCostInput.oninput = renderPlayers;
+document.getElementById('exportCSV').onclick = () => {
   const rows = [['Player','Start','End','Minutes','Cost']];
-  const cards = [...playersContainer.querySelectorAll('.card')];
-  cards.forEach(card=>{
-    const name = card.querySelector('.pname').value || '';
-    const s = card.querySelector('.pstart').value || '';
-    const e = card.querySelector('.pend').value || '';
-    const mins = card.querySelector('.pmins').textContent || '0';
-    const cost = card.querySelector('.pcost').textContent || '0.00';
-    rows.push([`"${name.replace(/"/g,'""')}"`, s, e, mins, cost]);
+  const totalMins = calcTotalMinutes();
+  const totalCost = parseFloat(totalCostInput.value) || 0;
+  players.forEach(p => {
+    const mins = (p.start && p.end) ? calcMinutes(p.start, p.end) : '';
+    const cost = totalMins > 0 ? (totalCost * mins / totalMins).toFixed(2) : '';
+    rows.push([p.name, p.start, p.end, mins, cost]);
   });
   const csv = rows.map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], {type: 'text/csv'});
+  const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'time-splitter.csv'; a.click(); URL.revokeObjectURL(url);
-});
+  const a = document.createElement('a');
+  a.href = url; a.download = 'time-splitter.csv'; a.click();
+  URL.revokeObjectURL(url);
+};
 
-// ------------------ Install prompt handling (Add to Home Screen) ------------------
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // show a custom prompt in UI (simple)
-  showInstallToast();
-});
-
-function showInstallToast(){
-  // small quick banner
-  if(document.getElementById('installBanner')) return;
-  const b = document.createElement('div');
-  b.id='installBanner';
-  b.style.position='fixed';b.style.left='12px';b.style.right='12px';b.style.bottom='80px';b.style.zIndex=9999;
-  b.style.background='linear-gradient(180deg,#fff,#f8fbff)';b.style.border='1px solid #e6f0ff';b.style.padding='10px';b.style.borderRadius='10px';b.style.display='flex';b.style.alignItems='center';b.style.justifyContent='space-between';
-  b.innerHTML = '<div style="display:flex;gap:10px;align-items:center"><strong>Install Time Splitter</strong><div class="tiny" style="color:var(--muted)">Add to your home screen for quick access</div></div><div><button id="doInstall" class="btn small">Add</button> <button id="dismissInstall" class="btn secondary small">Dismiss</button></div>';
-  document.body.appendChild(b);
-  document.getElementById('doInstall').addEventListener('click', async ()=>{
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    b.remove();
-  });
-  document.getElementById('dismissInstall').addEventListener('click', ()=>{ b.remove(); deferredPrompt = null; });
+if ('serviceWorker' in navigator) {
+  const sw = `
+  self.addEventListener('install', e => e.waitUntil(caches.open('ts-cache').then(c => c.addAll(['./']))));
+  self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+  `;
+  const blob = new Blob([sw], {type:'text/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl);
 }
 
-// ------------------ Save / Load state (localStorage) ------------------
-const STORAGE_KEY = 'time-splitter-state-v1';
-function saveState(){
-  try{
-    const cards = [...playersContainer.querySelectorAll('.card')].map(card=>({
-      id: card.dataset.id,
-      name: card.querySelector('.pname').value || '',
-      start: card.querySelector('.pstart').value || '',
-      end: card.querySelector('.pend').value || ''
-    }));
-    const state = {
-      players: cards,
-      totalCost: totalCostInput.value || '',
-      sessionStart: sessionStart.value || '',
-      sessionEnd: sessionEnd.value || ''
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }catch(e){ /* ignore */ }
-}
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const state = JSON.parse(raw);
-    // clear existing
-    [...playersContainer.querySelectorAll('.card')].forEach(c=>c.remove());
-    (state.players || []).forEach(p=> addPlayer(p.name, p.start, p.end));
-    totalCostInput.value = state.totalCost || '';
-    sessionStart.value = state.sessionStart || '';
-    sessionEnd.value = state.sessionEnd || '';
-    calc();
-  }catch(e){ console.warn(e); }
-}
-loadState();
-renderEmptyCheck();
-
-// quick keyboard enter support: when editing cost, press Enter to recalc
-totalCostInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') calc(); });
-
+renderPlayers();
 </script>
 </body>
 </html>
