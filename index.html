@@ -60,7 +60,7 @@
     transition: background 0.3s, color 0.3s;
   }
   tr:last-child td { border-bottom: none; }
-  input[type="text"], input[type="number"] {
+  input[type="text"], input[type="number"], input[type="time"] {
     width: 90%;
     padding: 2px;
     border: 1px solid var(--border-color);
@@ -70,8 +70,9 @@
     color: var(--text-color);
     transition: background 0.3s, color 0.3s, border-color 0.3s;
   }
+  /* UPDATED: Align time input to the left */
   .time-input {
-    text-align: center;
+    text-align: left;
     font-variant-numeric: tabular-nums;
   }
   button {
@@ -106,7 +107,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    display: none; /* Hidden by default */
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 1000;
@@ -131,7 +132,7 @@
     font-weight: bold;
   }
   #confirmOkBtn {
-    background-color: #00b8d4; /* Bright Cyan */
+    background-color: #00b8d4;
     color: #fff;
     border: 2px solid #00b8d4;
   }
@@ -198,22 +199,15 @@ window.onload = function() {
   loadData();
   loadTheme();
   
-  // Setup modal button listeners
   document.getElementById('confirmOkBtn').addEventListener('click', () => {
-    if (confirmCallback) {
-      confirmCallback();
-    }
+    if (confirmCallback) confirmCallback();
     closeConfirmModal();
   });
   
-  document.getElementById('confirmCancelBtn').addEventListener('click', () => {
-    closeConfirmModal();
-  });
+  document.getElementById('confirmCancelBtn').addEventListener('click', closeConfirmModal);
   
   document.getElementById('customConfirmModal').addEventListener('click', (e) => {
-    if (e.target.id === 'customConfirmModal') { // Click on overlay background
-        closeConfirmModal();
-    }
+    if (e.target.id === 'customConfirmModal') closeConfirmModal();
   });
 };
 
@@ -253,10 +247,11 @@ function addPlayer() {
 function addPlayerWithData(name, joined, left) {
   const tbody = document.querySelector("#playerTable tbody");
   const row = document.createElement("tr");
+  // UPDATED: Reverted to type="time" and added class for left alignment
   row.innerHTML = `
     <td><input type="text" placeholder="Name" value="${name}" onchange="saveData()"></td>
-    <td><input type="text" class="time-input" placeholder="HH:MM" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="${joined}" onchange="updateCosts(); saveData()"></td>
-    <td><input type="text" class="time-input" placeholder="HH:MM" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="${left}" onchange="updateCosts(); saveData()"></td>
+    <td><input type="time" class="time-input" value="${joined}" onchange="updateCosts(); saveData()"></td>
+    <td><input type="time" class="time-input" value="${left}" onchange="updateCosts(); saveData()"></td>
     <td class="minutes">0</td>
     <td class="cost">0</td>
     <td><button class="remove-btn" onclick="removePlayer(this)">✕</button></td>
@@ -272,17 +267,14 @@ function removePlayer(btn) {
   saveData();
 }
 
-// --- UPDATED NEW SESSION LOGIC ---
 function showNewSessionConfirm() {
   document.getElementById('confirmMessage').textContent = "Start a new session in Cost Splitter? This will clear all player data.";
-  
   confirmCallback = () => {
     document.querySelector("#playerTable tbody").innerHTML = "";
     document.getElementById("totalCost").value = "";
     document.getElementById("sessionTime").textContent = "–";
     localStorage.removeItem("costSplitterData");
   };
-  
   document.getElementById('customConfirmModal').style.display = 'flex';
 }
 
@@ -291,12 +283,11 @@ function updateCosts() {
   let totalMinutes = 0, minStart = null, maxEnd = null;
 
   rows.forEach(row => {
-    const startInput = row.children[1].querySelector("input");
-    const endInput = row.children[2].querySelector("input");
-    const start = startInput.value;
-    const end = endInput.value;
+    const start = row.children[1].querySelector("input").value;
+    const end = row.children[2].querySelector("input").value;
     
-    if (startInput.checkValidity() && endInput.checkValidity() && start && end) {
+    // An invalid time input will have an empty value
+    if (start && end) {
       const diff = timeDiffMinutes(start, end);
       row.querySelector(".minutes").textContent = diff;
       totalMinutes += diff;
@@ -321,10 +312,11 @@ function updateCosts() {
 }
 
 function timeDiffMinutes(start, end) {
+  // input type="time" value is always in 24-hour format (HH:mm)
   const [sh, sm] = start.split(":").map(Number);
   const [eh, em] = end.split(":").map(Number);
   let diff = (eh * 60 + em) - (sh * 60 + sm);
-  return diff < 0 ? diff + 1440 : diff; // 1440 = 24 * 60
+  return diff < 0 ? diff + 1440 : diff; // Add 24h for overnight sessions
 }
 
 function toggleTheme() {
