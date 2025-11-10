@@ -1,256 +1,299 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Cost Splitter</title>
-  <meta name="theme-color" content="#ffffff"/>
-
-  <style>
-    :root{
-      --bg: #f8fafc;
-      --text: #0f172a;
-      --muted: #6b7280;
-      --card: #ffffff;
-      --accent: #1f6feb; /* blue accent */
-      --border: #e6eefc;
-      --radius: 10px;
-    }
-    body.dark{
-      --bg: #0b1220;
-      --text: #e6eef8;
-      --muted: #93a3bd;
-      --card: #0f1724;
-      --border: #16202b;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Roboto,Arial}
-    .app{max-width:980px;margin:0 auto;padding:12px;padding-bottom:88px}
-
-    /* Top bar */
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-    .brand{display:flex;gap:10px;align-items:center}
-    .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(180deg,#e8f4ff,#d6eaff);display:flex;align-items:center;justify-content:center}
-    .apptitle{font-weight:700;font-size:1rem}
-    .controls{display:flex;gap:8px;align-items:center}
-
-    /* compact controls */
-    .input-cost{min-width:120px;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:0.95rem}
-    .btn{background:var(--accent);color:white;border:0;padding:8px 10px;border-radius:10px;font-weight:600}
-    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(31,111,235,0.12)}
-    .btn.ghost{background:transparent;border:0;color:var(--muted)}
-
-    /* header row */
-    #header-row{display:grid;grid-template-columns:1.3fr 0.65fr 0.65fr 0.5fr 0.7fr 40px;gap:8px;padding:8px 6px;margin-bottom:6px;font-weight:700;color:var(--muted);font-size:13px}
-    .grid-row{display:grid;grid-template-columns:1.3fr 0.65fr 0.65fr 0.5fr 0.7fr 40px;gap:8px;align-items:center;margin-bottom:6px}
-
-    .card-cell{background:var(--card);border:1px solid var(--border);padding:6px;border-radius:8px}
-
-    input[type="text"], input[type="number"], input[type="time"]{
-      width:100%;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;
-    }
-
-    /* Force 24h display by hiding AM/PM for WebKit browsers */
-    input[type="time"]{font-variant-numeric:tabular-nums;text-align:center}
-    input[type="time"]::-webkit-datetime-edit-ampm-field{display:none}
-    input[type="time"]::-webkit-clear-button,input[type="time"]::-webkit-inner-spin-button{display:none}
-
-    /* small remove btn */
-    .remove{background:#ef4444;color:white;border:0;border-radius:6px;padding:6px 6px;font-weight:700;cursor:pointer}
-
-    /* summary & bottom */
-    .summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px;margin-top:8px;background:var(--card);border-radius:10px;border:1px solid var(--border)}
-    .summary .left{font-size:13px;color:var(--muted)}
-    .summary .right{font-weight:700;font-size:15px}
-
-    footer.fixed{position:fixed;left:0;right:0;bottom:0;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,0.6),var(--bg));backdrop-filter:blur(6px);border-top:1px solid var(--border);display:flex;justify-content:center;box-shadow:0 -6px 18px rgba(0,0,0,0.04)}
-
-    /* responsive */
-    @media(max-width:640px){
-      #header-row,.grid-row{grid-template-columns:1fr 0.6fr 0.6fr 0.5fr 0.6fr 36px;font-size:12px}
-      .apptitle{font-size:0.95rem}
-      .logo{width:36px;height:36px}
-      .input-cost{min-width:96px}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost Splitter</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 10px;
+    color: #222;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark {
+    background: #1a1a1a;
+    color: #e0e0e0;
+  }
+  h2 {
+    text-align: center;
+    color: #0055cc;
+    margin-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+  body.dark table {
+    background: #2a2a2a;
+  }
+  th, td {
+    padding: 4px 6px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    transition: border-color 0.3s;
+  }
+  body.dark th, body.dark td {
+    border-bottom: 1px solid #444;
+  }
+  th {
+    background: #e9f0ff;
+    color: #0044aa;
+    font-weight: bold;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark th {
+    background: #333;
+    color: #66aaff;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  input[type="text"], input[type="time"], input[type="number"] {
+    width: 90%;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #fff;
+    color: #222;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+  }
+  body.dark input[type="text"], 
+  body.dark input[type="time"], 
+  body.dark input[type="number"] {
+    background: #3a3a3a;
+    color: #e0e0e0;
+    border-color: #555;
+  }
+  input[type="time"] {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="time"]::-webkit-datetime-edit-ampm-field {
+    display: none;
+  }
+  input[type="time"]::-webkit-clear-button,
+  input[type="time"]::-webkit-inner-spin-button {
+    display: none;
+  }
+  button {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    margin: 5px 2px;
+    cursor: pointer;
+  }
+  .add-btn {
+    background: #007bff;
+    color: white;
+  }
+  .remove-btn {
+    background: #ff6666;
+    color: white;
+    padding: 2px 6px;
+  }
+  .new-session {
+    background: #999;
+    color: white;
+    float: right;
+  }
+  .summary {
+    margin-top: 10px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: background 0.3s;
+  }
+  body.dark .summary {
+    background: #2a2a2a;
+  }
+  .theme-toggle {
+    background: #555;
+    color: white;
+    margin-top: 10px;
+    width: 100%;
+  }
+  body.dark .theme-toggle {
+    background: #777;
+  }
+  @media (max-width: 600px) {
+    th, td { font-size: 12px; padding: 3px; }
+    input { font-size: 12px; }
+    button { font-size: 12px; }
+  }
+</style>
 </head>
 <body>
-  <div class="app" id="app">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <!-- svg paddle icon -->
-          <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect x="6" y="12" width="36" height="24" rx="6" fill="#1f6feb"/>
-            <rect x="28" y="36" width="8" height="16" rx="4" fill="#6b7280"/>
-            <circle cx="50" cy="18" r="6" fill="#ffffff" stroke="#cfe1ff" stroke-width="1.5"/>
-          </svg>
-        </div>
-        <div>
-          <div class="apptitle">Cost Splitter</div>
-        </div>
-      </div>
 
-      <div class="controls">
-        <input id="totalCost" class="input-cost" type="number" placeholder="" aria-label="Total cost">
-        <button id="addPlayer" class="btn">+ Player</button>
-        <button id="exportCsv" class="btn secondary">Export CSV</button>
-        <!-- theme toggle top-right -->
-        <button id="toggleTheme" title="Toggle theme" class="btn ghost" style="margin-left:6px">🌗</button>
-      </div>
-    </div>
+<h2>Cost Splitter</h2>
 
-    <div id="header-row">
-      <div>Player</div><div>Joined</div><div>Left</div><div>Min</div><div>Cost</div><div></div>
-    </div>
+<div style="margin-bottom:8px;">
+  <button class="add-btn" onclick="addPlayer()">+ Player</button>
+  <button class="new-session" onclick="newSession()">New Session</button>
+</div>
 
-    <div id="playersList" aria-live="polite"></div>
+<table id="playerTable">
+  <thead>
+    <tr>
+      <th>Player</th>
+      <th>Joined</th>
+      <th>Left</th>
+      <th>Min</th>
+      <th>Cost</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-    <div class="summary" id="summary">
-      <div class="left">Session: <span id="sessionTime">–</span></div>
-      <div class="right">Total minutes: <span id="totalMinutes">0</span></div>
-    </div>
+<div class="summary">
+  <label>Total Cost: <input type="number" id="totalCost" value="" placeholder="Enter cost" min="0" onchange="updateCosts()" style="width:70px;"> RON</label>
+  <br>
+  <strong>Session:</strong> <span id="sessionTime">–</span>
+</div>
 
-  </div>
-
-  <footer class="fixed">
-    <div style="width:980px;max-width:96%;display:flex;justify-content:space-between;gap:8px">
-      <button id="newSession" class="btn secondary" style="background:#ef4444;color:white;border-radius:10px">New Session</button>
-      <div style="flex:1"></div>
-      <div style="display:flex;gap:8px">
-        <button id="recalc" class="btn">Recalculate</button>
-      </div>
-    </div>
-  </footer>
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light Theme</button>
 
 <script>
-const STORAGE_KEY = 'cost-splitter-state-v1';
-const THEME_KEY = 'cost-splitter-theme-v1';
+let players = [];
 
-let state = { players: [], totalCost: '' };
-try { const raw = localStorage.getItem(STORAGE_KEY); if(raw) state = JSON.parse(raw); } catch(e){}
+// Load saved data on startup
+window.onload = function() {
+  loadData();
+  loadTheme();
+};
 
-let theme = localStorage.getItem(THEME_KEY) || 'light';
-if(theme === 'dark') document.body.classList.add('dark');
+function saveData() {
+  const rows = document.querySelectorAll("#playerTable tbody tr");
+  const data = [];
+  
+  rows.forEach(row => {
+    const name = row.children[0].querySelector("input").value;
+    const joined = row.children[1].querySelector("input").value;
+    const left = row.children[2].querySelector("input").value;
+    data.push({ name, joined, left });
+  });
+  
+  const totalCost = document.getElementById("totalCost").value;
+  const state = { players: data, totalCost };
+  localStorage.setItem("costSplitterData", JSON.stringify(state));
+}
 
-const playersList = document.getElementById('playersList');
-const totalCostInput = document.getElementById('totalCost');
-const sessionTimeEl = document.getElementById('sessionTime');
-const totalMinutesEl = document.getElementById('totalMinutes');
+function loadData() {
+  const saved = localStorage.getItem("costSplitterData");
+  if (saved) {
+    const state = JSON.parse(saved);
+    document.getElementById("totalCost").value = state.totalCost || "";
+    
+    state.players.forEach(player => {
+      addPlayerWithData(player.name, player.joined, player.left);
+    });
+    
+    updateCosts();
+  }
+}
 
-totalCostInput.value = state.totalCost || '';
+function addPlayer() {
+  addPlayerWithData("", "", "");
+}
 
-function createRowItem(idx, p){
-  const row = document.createElement('div');
-  row.className = 'grid-row';
+function addPlayerWithData(name, joined, left) {
+  const tbody = document.querySelector("#playerTable tbody");
+  const row = document.createElement("tr");
+
   row.innerHTML = `
-    <div class="card-cell"><input type="text" class="pname" value="${escapeHtml(p.name||'')}" placeholder="Name"></div>
-    <div class="card-cell"><input type="time" class="pstart" value="${p.start||''}"></div>
-    <div class="card-cell"><input type="time" class="pend" value="${p.end||''}"></div>
-    <div class="card-cell"><input type="number" class="pmins" value="" readonly></div>
-    <div class="card-cell"><input type="number" class="pcost" value="" readonly></div>
-    <div class="card-cell" style="display:flex;align-items:center;justify-content:center"><button class="remove" title="Remove">✖</button></div>
+    <td><input type="text" placeholder="Name" value="${name}" onchange="saveData()"></td>
+    <td><input type="time" value="${joined}" onchange="updateCosts(); saveData()"></td>
+    <td><input type="time" value="${left}" onchange="updateCosts(); saveData()"></td>
+    <td class="minutes">0</td>
+    <td class="cost">0</td>
+    <td><button class="remove-btn" onclick="removePlayer(this)">✕</button></td>
   `;
-  row.querySelector('.pname').addEventListener('input', e=>{ state.players[idx].name = e.target.value; saveState(); render(); });
-  row.querySelector('.pstart').addEventListener('input', e=>{ state.players[idx].start = e.target.value; saveState(); render(); });
-  row.querySelector('.pend').addEventListener('input', e=>{ state.players[idx].end = e.target.value; saveState(); render(); });
-  row.querySelector('.remove').addEventListener('click', ()=>{ state.players.splice(idx,1); saveState(); render(); });
-  return row;
+
+  tbody.appendChild(row);
+  updateCosts();
+  saveData();
 }
 
-function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function addPlayer(){
-  state.players.push({name:'', start:'', end:''});
-  saveState();
-  render();
-  setTimeout(()=>{ const rows = playersList.querySelectorAll('.grid-row'); if(rows.length) rows[rows.length-1].querySelector('.pname').focus(); },50);
+function removePlayer(btn) {
+  btn.closest("tr").remove();
+  updateCosts();
+  saveData();
 }
 
-function saveState(){ state.totalCost = totalCostInput.value || ''; try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
-
-function calcMinutes(start, end){
-  if(!start || !end) return 0;
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  let mins = (eh*60 + em) - (sh*60 + sm);
-  if(mins < 0) mins += 24*60;
-  return mins;
+function newSession() {
+  if (!confirm("Start a new session? All current data will be cleared.")) return;
+  document.querySelector("#playerTable tbody").innerHTML = "";
+  document.getElementById("totalCost").value = "";
+  document.getElementById("sessionTime").textContent = "–";
+  players = [];
+  localStorage.removeItem("costSplitterData");
 }
 
-function calcAll(){
-  const players = state.players;
-  let totalMins = 0;
+function updateCosts() {
+  const rows = document.querySelectorAll("#playerTable tbody tr");
+  let totalMinutes = 0;
   let minStart = null, maxEnd = null;
-  players.forEach(p=>{
-    const mins = calcMinutes(p.start, p.end);
-    totalMins += mins;
-    if(p.start){ if(minStart === null || p.start < minStart) minStart = p.start; }
-    if(p.end){ if(maxEnd === null || p.end > maxEnd) maxEnd = p.end; }
+
+  rows.forEach(row => {
+    const start = row.children[1].querySelector("input").value;
+    const end = row.children[2].querySelector("input").value;
+    const minCell = row.querySelector(".minutes");
+    const costCell = row.querySelector(".cost");
+
+    if (start && end) {
+      const diff = timeDiffMinutes(start, end);
+      minCell.textContent = diff;
+      totalMinutes += diff;
+      if (!minStart || start < minStart) minStart = start;
+      if (!maxEnd || end > maxEnd) maxEnd = end;
+    } else {
+      minCell.textContent = "0";
+      costCell.textContent = "0";
+    }
   });
-  const totalCost = parseFloat(state.totalCost) || 0;
-  players.forEach(p=>{
-    const mins = calcMinutes(p.start, p.end);
-    p._mins = mins;
-    p._cost = totalMins>0 ? +(totalCost * mins / totalMins).toFixed(2) : '';
+
+  const totalCost = parseFloat(document.getElementById("totalCost").value) || 0;
+  const costPerMinute = totalMinutes > 0 ? totalCost / totalMinutes : 0;
+
+  rows.forEach(row => {
+    const mins = parseFloat(row.querySelector(".minutes").textContent) || 0;
+    const playerCost = (mins * costPerMinute).toFixed(2);
+    row.querySelector(".cost").textContent = playerCost;
   });
-  return { totalMins, minStart, maxEnd };
+
+  document.getElementById("sessionTime").textContent = minStart && maxEnd ? `${minStart} → ${maxEnd}` : "–";
+  saveData();
 }
 
-function render(){
-  playersList.innerHTML = '';
-  state.players.forEach((p, i)=>{ playersList.appendChild(createRowItem(i,p)); });
-  const { totalMins, minStart, maxEnd } = calcAll();
-  const rows = playersList.querySelectorAll('.grid-row');
-  rows.forEach((r, idx)=>{ const p = state.players[idx]; r.querySelector('.pmins').value = p._mins || ''; r.querySelector('.pcost').value = (p._cost!==undefined && p._cost!=='') ? p._cost : ''; });
-  totalMinutesEl.textContent = totalMins;
-  sessionTimeEl.textContent = (minStart && maxEnd) ? `${minStart} → ${maxEnd}` : '–';
-  saveState();
+function timeDiffMinutes(start, end) {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  return (eh * 60 + em) - (sh * 60 + sm);
 }
 
-function exportCsv(){
-  const header = ['Player','Joined','Left','Minutes','Cost'];
-  const rows = [header];
-  const { totalMins } = calcAll();
-  const totalCost = parseFloat(state.totalCost) || 0;
-  state.players.forEach(p=>{
-    const mins = p._mins || 0;
-    const cost = p._cost!==undefined && p._cost!=='' ? p._cost : (totalMins>0 ? +(totalCost * mins / totalMins).toFixed(2) : '');
-    rows.push([p.name || '', p.start || '', p.end || '', mins, cost]);
-  });
-  const csv = rows.map(r=>r.map(cell=>typeof cell==='string' && cell.includes(',') ? `"${cell.replace(/"/g,'""')}"` : cell).join(',')).join('\\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'cost-splitter.csv'; a.click(); URL.revokeObjectURL(url);
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  const isDark = document.body.classList.contains("dark");
+  localStorage.setItem("costSplitterTheme", isDark ? "dark" : "light");
 }
 
-function newSession(){
-  if(!confirm('Start a new session in Cost Splitter? This will clear all player data.')) return;
-  state.players = []; state.totalCost = ''; totalCostInput.value = ''; saveState(); render();
+function loadTheme() {
+  const theme = localStorage.getItem("costSplitterTheme");
+  if (theme === "dark") {
+    document.body.classList.add("dark");
+  }
 }
-
-document.getElementById('toggleTheme').addEventListener('click', ()=>{
-  theme = (theme==='dark') ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, theme);
-  document.body.classList.toggle('dark', theme==='dark');
-});
-document.getElementById('addPlayer').addEventListener('click', addPlayer);
-document.getElementById('exportCsv').addEventListener('click', exportCsv);
-document.getElementById('newSession').addEventListener('click', newSession);
-document.getElementById('recalc').addEventListener('click', render);
-totalCostInput.addEventListener('input', ()=>{ state.totalCost = totalCostInput.value; saveState(); render(); });
-
-if('serviceWorker' in navigator){
-  const sw = `
-self.addEventListener('install', e => e.waitUntil(caches.open('cost-splitter-cache-v1').then(c => c.addAll(['./']))));
-self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
-`;
-  const blob = new Blob([sw], {type:'application/javascript'});
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(()=>{});
-}
-
-render();
 </script>
 </body>
 </html>
