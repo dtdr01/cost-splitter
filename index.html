@@ -5,17 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cost Splitter</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    margin: 0;
-    padding: 10px;
-    color: #222;
-    transition: background 0.3s, color 0.3s;
+  :root {
+    --bg-color: #f5f5f5;
+    --text-color: #222;
+    --surface-bg: #fff;
+    --border-color: #ddd;
+    --header-bg: #e9f0ff;
+    --header-color: #0044aa;
+    --primary-accent: #007bff;
+    --modal-bg: #f0f0f0;
   }
   body.dark {
-    background: #1a1a1a;
-    color: #e0e0e0;
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --surface-bg: #2a2a2a;
+    --border-color: #444;
+    --header-bg: #333;
+    --header-color: #66aaff;
+    --primary-accent: #007bff;
+    --modal-bg: #383838;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background: var(--bg-color);
+    margin: 0;
+    padding: 10px;
+    color: var(--text-color);
+    transition: background 0.3s, color 0.3s;
   }
   h2 {
     text-align: center;
@@ -25,71 +41,38 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    background: #fff;
+    background: var(--surface-bg);
     border-radius: 10px;
     overflow: hidden;
     font-size: 14px;
     transition: background 0.3s;
   }
-  body.dark table {
-    background: #2a2a2a;
-  }
   th, td {
     padding: 4px 6px;
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
     transition: border-color 0.3s;
   }
-  body.dark th, body.dark td {
-    border-bottom: 1px solid #444;
-  }
   th {
-    background: #e9f0ff;
-    color: #0044aa;
+    background: var(--header-bg);
+    color: var(--header-color);
     font-weight: bold;
     transition: background 0.3s, color 0.3s;
   }
-  body.dark th {
-    background: #333;
-    color: #66aaff;
-  }
-  tr:last-child td {
-    border-bottom: none;
-  }
-  input[type="text"], input[type="time"], input[type="number"] {
+  tr:last-child td { border-bottom: none; }
+  input[type="text"], input[type="number"] {
     width: 90%;
     padding: 2px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 13px;
-    background: #fff;
-    color: #222;
+    background: var(--surface-bg);
+    color: var(--text-color);
     transition: background 0.3s, color 0.3s, border-color 0.3s;
   }
-  body.dark input[type="text"], 
-  body.dark input[type="time"], 
-  body.dark input[type="number"] {
-    background: #3a3a3a;
-    color: #e0e0e0;
-    border-color: #555;
-  }
-  input[type="time"] {
+  .time-input {
     text-align: center;
     font-variant-numeric: tabular-nums;
-  }
-  /* Ensure 24-hour format by hiding the AM/PM selector in WebKit browsers */
-  input[type="time"]::-webkit-datetime-edit-ampm-field {
-    display: none;
-  }
-  input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(0);
-  }
-  body.dark input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-  }
-  input[type="time"]::-webkit-clear-button,
-  input[type="time"]::-webkit-inner-spin-button {
-    display: none;
   }
   button {
     border: none;
@@ -99,40 +82,65 @@
     margin: 5px 2px;
     cursor: pointer;
   }
-  .add-btn {
-    background: #007bff;
-    color: white;
-  }
-  .remove-btn {
-    background: #ff6666;
-    color: white;
-    padding: 2px 6px;
-  }
-  .new-session {
-    background: #999;
-    color: white;
-    float: right;
-  }
+  .add-btn { background: var(--primary-accent); color: white; }
+  .remove-btn { background: #ff6666; color: white; padding: 2px 6px; }
+  .new-session { background: #999; color: white; float: right; }
   .summary {
     margin-top: 10px;
-    background: #fff;
+    background: var(--surface-bg);
     padding: 8px;
     border-radius: 8px;
     font-size: 14px;
     transition: background 0.3s;
   }
-  body.dark .summary {
-    background: #2a2a2a;
-  }
   .theme-toggle {
-    background: #555;
-    color: white;
-    margin-top: 10px;
+    background: #555; color: white; margin-top: 10px; width: 100%;
+  }
+  body.dark .theme-toggle { background: #777; }
+
+  /* --- Custom Confirm Modal Styles --- */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
   }
-  body.dark .theme-toggle {
-    background: #777;
+  .modal-content {
+    background: var(--modal-bg);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    color: var(--text-color);
   }
+  .modal-content p {
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  .modal-buttons button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  #confirmOkBtn {
+    background-color: #00b8d4; /* Bright Cyan */
+    color: #fff;
+    border: 2px solid #00b8d4;
+  }
+  #confirmCancelBtn {
+    background-color: transparent;
+    color: var(--text-color);
+    border: 2px solid #888;
+  }
+
   @media (max-width: 600px) {
     th, td { font-size: 12px; padding: 3px; }
     input { font-size: 12px; }
@@ -146,7 +154,7 @@
 
 <div style="margin-bottom:8px;">
   <button class="add-btn" onclick="addPlayer()">+ Player</button>
-  <button class="new-session" onclick="newSession()">New Session</button>
+  <button class="new-session" onclick="showNewSessionConfirm()">New Session</button>
 </div>
 
 <table id="playerTable">
@@ -171,29 +179,61 @@
 
 <button class="theme-toggle" onclick="toggleTheme()">Toggle Dark/Light Theme</button>
 
+<!-- --- CUSTOM CONFIRM MODAL HTML --- -->
+<div id="customConfirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <p id="confirmMessage"></p>
+    <div class="modal-buttons">
+      <button id="confirmOkBtn">OK</button>
+      <button id="confirmCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
-let players = [];
+let confirmCallback = null;
 
 // Load saved data on startup
 window.onload = function() {
   loadData();
   loadTheme();
+  
+  // Setup modal button listeners
+  document.getElementById('confirmOkBtn').addEventListener('click', () => {
+    if (confirmCallback) {
+      confirmCallback();
+    }
+    closeConfirmModal();
+  });
+  
+  document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+    closeConfirmModal();
+  });
+  
+  document.getElementById('customConfirmModal').addEventListener('click', (e) => {
+    if (e.target.id === 'customConfirmModal') { // Click on overlay background
+        closeConfirmModal();
+    }
+  });
 };
+
+function closeConfirmModal() {
+  document.getElementById('customConfirmModal').style.display = 'none';
+  confirmCallback = null;
+}
 
 function saveData() {
   const rows = document.querySelectorAll("#playerTable tbody tr");
   const data = [];
-  
   rows.forEach(row => {
-    const name = row.children[0].querySelector("input").value;
-    const joined = row.children[1].querySelector("input").value;
-    const left = row.children[2].querySelector("input").value;
-    data.push({ name, joined, left });
+    data.push({
+      name: row.children[0].querySelector("input").value,
+      joined: row.children[1].querySelector("input").value,
+      left: row.children[2].querySelector("input").value,
+    });
   });
-  
   const totalCost = document.getElementById("totalCost").value;
-  const state = { players: data, totalCost };
-  localStorage.setItem("costSplitterData", JSON.stringify(state));
+  localStorage.setItem("costSplitterData", JSON.stringify({ players: data, totalCost }));
 }
 
 function loadData() {
@@ -201,11 +241,7 @@ function loadData() {
   if (saved) {
     const state = JSON.parse(saved);
     document.getElementById("totalCost").value = state.totalCost || "";
-    
-    state.players.forEach(player => {
-      addPlayerWithData(player.name, player.joined, player.left);
-    });
-    
+    state.players.forEach(p => addPlayerWithData(p.name, p.joined, p.left));
     updateCosts();
   }
 }
@@ -217,16 +253,14 @@ function addPlayer() {
 function addPlayerWithData(name, joined, left) {
   const tbody = document.querySelector("#playerTable tbody");
   const row = document.createElement("tr");
-
   row.innerHTML = `
     <td><input type="text" placeholder="Name" value="${name}" onchange="saveData()"></td>
-    <td><input type="time" value="${joined}" onchange="updateCosts(); saveData()"></td>
-    <td><input type="time" value="${left}" onchange="updateCosts(); saveData()"></td>
+    <td><input type="text" class="time-input" placeholder="HH:MM" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="${joined}" onchange="updateCosts(); saveData()"></td>
+    <td><input type="text" class="time-input" placeholder="HH:MM" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="${left}" onchange="updateCosts(); saveData()"></td>
     <td class="minutes">0</td>
     <td class="cost">0</td>
     <td><button class="remove-btn" onclick="removePlayer(this)">✕</button></td>
   `;
-
   tbody.appendChild(row);
   updateCosts();
   saveData();
@@ -238,35 +272,39 @@ function removePlayer(btn) {
   saveData();
 }
 
-function newSession() {
-  if (!confirm("Are you sure you want to start a new session in Cost Splitter? This will clear all current data.")) return;
-  document.querySelector("#playerTable tbody").innerHTML = "";
-  document.getElementById("totalCost").value = "";
-  document.getElementById("sessionTime").textContent = "–";
-  players = [];
-  localStorage.removeItem("costSplitterData");
+// --- UPDATED NEW SESSION LOGIC ---
+function showNewSessionConfirm() {
+  document.getElementById('confirmMessage').textContent = "Start a new session in Cost Splitter? This will clear all player data.";
+  
+  confirmCallback = () => {
+    document.querySelector("#playerTable tbody").innerHTML = "";
+    document.getElementById("totalCost").value = "";
+    document.getElementById("sessionTime").textContent = "–";
+    localStorage.removeItem("costSplitterData");
+  };
+  
+  document.getElementById('customConfirmModal').style.display = 'flex';
 }
 
 function updateCosts() {
   const rows = document.querySelectorAll("#playerTable tbody tr");
-  let totalMinutes = 0;
-  let minStart = null, maxEnd = null;
+  let totalMinutes = 0, minStart = null, maxEnd = null;
 
   rows.forEach(row => {
-    const start = row.children[1].querySelector("input").value;
-    const end = row.children[2].querySelector("input").value;
-    const minCell = row.querySelector(".minutes");
-    const costCell = row.querySelector(".cost");
-
-    if (start && end) {
+    const startInput = row.children[1].querySelector("input");
+    const endInput = row.children[2].querySelector("input");
+    const start = startInput.value;
+    const end = endInput.value;
+    
+    if (startInput.checkValidity() && endInput.checkValidity() && start && end) {
       const diff = timeDiffMinutes(start, end);
-      minCell.textContent = diff;
+      row.querySelector(".minutes").textContent = diff;
       totalMinutes += diff;
       if (!minStart || start < minStart) minStart = start;
       if (!maxEnd || end > maxEnd) maxEnd = end;
     } else {
-      minCell.textContent = "0";
-      costCell.textContent = "0";
+      row.querySelector(".minutes").textContent = "0";
+      row.querySelector(".cost").textContent = "0";
     }
   });
 
@@ -275,8 +313,7 @@ function updateCosts() {
 
   rows.forEach(row => {
     const mins = parseFloat(row.querySelector(".minutes").textContent) || 0;
-    const playerCost = (mins * costPerMinute).toFixed(2);
-    row.querySelector(".cost").textContent = playerCost;
+    row.querySelector(".cost").textContent = (mins * costPerMinute).toFixed(2);
   });
 
   document.getElementById("sessionTime").textContent = minStart && maxEnd ? `${minStart} → ${maxEnd}` : "–";
@@ -286,18 +323,17 @@ function updateCosts() {
 function timeDiffMinutes(start, end) {
   const [sh, sm] = start.split(":").map(Number);
   const [eh, em] = end.split(":").map(Number);
-  return (eh * 60 + em) - (sh * 60 + sm);
+  let diff = (eh * 60 + em) - (sh * 60 + sm);
+  return diff < 0 ? diff + 1440 : diff; // 1440 = 24 * 60
 }
 
 function toggleTheme() {
   document.body.classList.toggle("dark");
-  const isDark = document.body.classList.contains("dark");
-  localStorage.setItem("costSplitterTheme", isDark ? "dark" : "light");
+  localStorage.setItem("costSplitterTheme", document.body.classList.contains("dark") ? "dark" : "light");
 }
 
 function loadTheme() {
-  const theme = localStorage.getItem("costSplitterTheme");
-  if (theme === "dark") {
+  if (localStorage.getItem("costSplitterTheme") === "dark") {
     document.body.classList.add("dark");
   }
 }
