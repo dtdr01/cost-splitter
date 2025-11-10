@@ -80,6 +80,12 @@
   input[type="time"]::-webkit-datetime-edit-ampm-field {
     display: none;
   }
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+  }
+  body.dark input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
   input[type="time"]::-webkit-clear-button,
   input[type="time"]::-webkit-inner-spin-button {
     display: none;
@@ -232,7 +238,7 @@ function removePlayer(btn) {
 }
 
 function newSession() {
-  if (!confirm("Start a new session? All current data will be cleared.")) return;
+  if (!confirm("Start a new session in Cost Splitter? All current data will be cleared.")) return;
   document.querySelector("#playerTable tbody").innerHTML = "";
   document.getElementById("totalCost").value = "";
   document.getElementById("sessionTime").textContent = "–";
