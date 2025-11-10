@@ -48,7 +48,7 @@
     gap: 6px;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   button {
@@ -78,7 +78,7 @@
 
   #header-row {
     display: grid;
-    grid-template-columns: 1.3fr 0.65fr 0.65fr 0.5fr 0.7fr auto;
+    grid-template-columns: 1.3fr 0.6fr 0.6fr 0.5fr 0.7fr auto;
     font-weight: 600;
     text-align: center;
     font-size: 0.8rem;
@@ -88,7 +88,7 @@
 
   .player-row {
     display: grid;
-    grid-template-columns: 1.3fr 0.65fr 0.65fr 0.5fr 0.7fr auto;
+    grid-template-columns: 1.3fr 0.6fr 0.6fr 0.5fr 0.7fr auto;
     align-items: center;
     gap: 4px;
     background: var(--card-bg);
@@ -100,7 +100,7 @@
   }
 
   #summary {
-    margin-top: 10px;
+    margin-top: 12px;
     background: var(--card-bg);
     border-radius: 8px;
     padding: 8px;
@@ -112,9 +112,17 @@
     font-size: 0.85rem;
   }
 
+  #bottom-controls {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   @media (max-width: 600px) {
     #header-row, .player-row {
-      grid-template-columns: 1fr 0.55fr 0.55fr 0.5fr 0.7fr auto;
+      grid-template-columns: 1fr 0.5fr 0.5fr 0.45fr 0.65fr auto;
       font-size: 0.8rem;
     }
   }
@@ -126,7 +134,6 @@
     <button id="addPlayer">+ Player</button>
     <button id="exportCSV">Export CSV</button>
     <input type="number" id="totalCost" placeholder="Total Cost" style="flex:1; min-width:100px;">
-    <button id="newSession" style="background:#e11d48;">New Session</button>
     <button id="toggleTheme" style="background:#444;">🌗</button>
   </div>
 
@@ -145,6 +152,10 @@
     <p><strong>Session Start:</strong> <span id="sessionStart">–</span></p>
     <p><strong>Session End:</strong> <span id="sessionEnd">–</span></p>
     <p><strong>Total Minutes:</strong> <span id="totalMinutes">0</span></p>
+  </div>
+
+  <div id="bottom-controls">
+    <button id="newSession" style="background:#e11d48;">New Session</button>
   </div>
 
 <script>
@@ -172,6 +183,12 @@ document.getElementById('newSession').onclick = () => {
     renderPlayers();
   }
 };
+
+function format24h(date) {
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
 
 function renderPlayers() {
   playersDiv.innerHTML = '';
@@ -251,8 +268,8 @@ function calc() {
     }
   });
   totalMinutesEl.textContent = totalMins;
-  sessionStartEl.textContent = minTime ? minTime.toTimeString().substring(0,5) : '–';
-  sessionEndEl.textContent = maxTime ? maxTime.toTimeString().substring(0,5) : '–';
+  sessionStartEl.textContent = minTime ? format24h(minTime) : '–';
+  sessionEndEl.textContent = maxTime ? format24h(maxTime) : '–';
 }
 
 document.getElementById('addPlayer').onclick = addPlayer;
