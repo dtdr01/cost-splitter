@@ -1,307 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Time Splitter</title>
-
-<link rel="manifest" href="data:application/manifest+json,{ 
-  &quot;name&quot;: &quot;Time Splitter&quot;, 
-  &quot;short_name&quot;: &quot;Splitter&quot;, 
-  &quot;start_url&quot;: &quot;.&quot;, 
-  &quot;display&quot;: &quot;standalone&quot;, 
-  &quot;background_color&quot;: &quot;#f2f2f2&quot;, 
-  &quot;theme_color&quot;: &quot;#2563eb&quot;, 
-  &quot;icons&quot;: [{ &quot;src&quot;: &quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%232563eb'/><rect x='20' y='45' width='60' height='10' fill='white'/></svg>&quot;, &quot;sizes&quot;: &quot;192x192&quot;, &quot;type&quot;: &quot;image/svg+xml&quot; }] 
-}" />
-<meta name="theme-color" content="#2563eb" />
-
 <style>
-  :root {
-    --bg: #f8f9fa;
-    --text: #222;
-    --card-bg: #fff;
-    --border: #ddd;
-    --accent: #2563eb;
-    --input-bg: #fff;
-  }
-
-  body.dark {
-    --bg: #121212;
-    --text: #eee;
-    --card-bg: #1e1e1e;
-    --border: #333;
-    --input-bg: #1b1b1b;
-  }
-
   body {
-    font-family: system-ui, Roboto, Arial, sans-serif;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
     margin: 0;
     padding: 10px;
-    background: var(--bg);
-    color: var(--text);
-    transition: background 0.3s, color 0.3s;
+    color: #222;
   }
-
-  #controls {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin-bottom: 8px;
+  h2 {
+    text-align: center;
+    color: #0055cc;
+    margin-bottom: 10px;
   }
-
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 4px 6px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background: #e9f0ff;
+    color: #0044aa;
+    font-weight: bold;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  input[type="text"], input[type="time"], input[type="number"] {
+    width: 90%;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  input[type="time"] {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="time"]::-webkit-datetime-edit-ampm-field {
+    display: none;
+  }
+  input[type="time"]::-webkit-clear-button,
+  input[type="time"]::-webkit-inner-spin-button {
+    display: none;
+  }
   button {
-    background: var(--accent);
-    color: #fff;
     border: none;
     border-radius: 6px;
     padding: 6px 10px;
-    font-size: 0.9rem;
+    font-size: 13px;
+    margin: 5px 2px;
     cursor: pointer;
   }
-
-  button.small {
-    padding: 3px 6px;
-    font-size: 0.8rem;
+  .add-btn {
+    background: #007bff;
+    color: white;
   }
-
-  input {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 4px;
-    font-size: 0.85rem;
-    width: 100%;
-    background: var(--input-bg);
-    color: var(--text);
+  .remove-btn {
+    background: #ff6666;
+    color: white;
+    padding: 2px 6px;
   }
-
-  #header-row {
-    display: grid;
-    grid-template-columns: 1.3fr 0.6fr 0.6fr 0.5fr 0.7fr auto;
-    font-weight: 600;
-    text-align: center;
-    font-size: 0.8rem;
-    margin-bottom: 4px;
-    color: var(--accent);
+  .new-session {
+    background: #999;
+    color: white;
+    float: right;
   }
-
-  .player-row {
-    display: grid;
-    grid-template-columns: 1.3fr 0.6fr 0.6fr 0.5fr 0.7fr auto;
-    align-items: center;
-    gap: 4px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px 6px;
-    margin-bottom: 6px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  }
-
-  #summary {
-    margin-top: 12px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    padding: 8px;
-    border: 1px solid var(--border);
-  }
-
-  #summary p {
-    margin: 2px 0;
-    font-size: 0.85rem;
-  }
-
-  #bottom-controls {
+  .summary {
     margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 14px;
   }
-
   @media (max-width: 600px) {
-    #header-row, .player-row {
-      grid-template-columns: 1fr 0.5fr 0.5fr 0.45fr 0.65fr auto;
-      font-size: 0.8rem;
-    }
+    th, td { font-size: 12px; padding: 3px; }
+    input { font-size: 12px; }
+    button { font-size: 12px; }
   }
 </style>
 </head>
-
 <body>
-  <div id="controls">
-    <button id="addPlayer">+ Player</button>
-    <button id="exportCSV">Export CSV</button>
-    <input type="number" id="totalCost" placeholder="Total Cost" style="flex:1; min-width:100px;">
-    <button id="toggleTheme" style="background:#444;">🌗</button>
-  </div>
 
-  <div id="header-row">
-    <div>Player</div>
-    <div>Joined</div>
-    <div>Left</div>
-    <div>Min</div>
-    <div>Cost</div>
-    <div></div>
-  </div>
+<h2>Time Splitter</h2>
 
-  <div id="players"></div>
+<div style="margin-bottom:8px;">
+  <button class="add-btn" onclick="addPlayer()">+ Player</button>
+  <button class="new-session" onclick="newSession()">New Session</button>
+</div>
 
-  <div id="summary">
-    <p><strong>Session Start:</strong> <span id="sessionStart">–</span></p>
-    <p><strong>Session End:</strong> <span id="sessionEnd">–</span></p>
-    <p><strong>Total Minutes:</strong> <span id="totalMinutes">0</span></p>
-  </div>
+<table id="playerTable">
+  <thead>
+    <tr>
+      <th>Player</th>
+      <th>Joined</th>
+      <th>Left</th>
+      <th>Min</th>
+      <th>Cost</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-  <div id="bottom-controls">
-    <button id="newSession" style="background:#e11d48;">New Session</button>
-  </div>
+<div class="summary">
+  <label>Total Cost: <input type="number" id="totalCost" value="100" min="0" onchange="updateCosts()" style="width:70px;"> RON</label>
+  <br>
+  <strong>Session:</strong> <span id="sessionTime">–</span>
+</div>
 
 <script>
-const playersDiv = document.getElementById('players');
-const totalCostInput = document.getElementById('totalCost');
-const sessionStartEl = document.getElementById('sessionStart');
-const sessionEndEl = document.getElementById('sessionEnd');
-const totalMinutesEl = document.getElementById('totalMinutes');
-let players = JSON.parse(localStorage.getItem('timeSplitterPlayers') || '[]');
-let darkMode = localStorage.getItem('timeSplitterDark') === 'true';
-
-if (darkMode) document.body.classList.add('dark');
-
-document.getElementById('toggleTheme').onclick = () => {
-  document.body.classList.toggle('dark');
-  darkMode = document.body.classList.contains('dark');
-  localStorage.setItem('timeSplitterDark', darkMode);
-};
-
-document.getElementById('newSession').onclick = () => {
-  if (confirm('Start a new session? This will clear all player data.')) {
-    players = [];
-    localStorage.removeItem('timeSplitterPlayers');
-    totalCostInput.value = '';
-    renderPlayers();
-  }
-};
-
-function format24h(date) {
-  const h = String(date.getHours()).padStart(2, '0');
-  const m = String(date.getMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
-}
-
-function renderPlayers() {
-  playersDiv.innerHTML = '';
-  const totalMins = calcTotalMinutes();
-  const totalCost = parseFloat(totalCostInput.value) || 0;
-
-  players.forEach((p, i) => {
-    const mins = (p.start && p.end) ? calcMinutes(p.start, p.end) : 0;
-    const cost = totalMins > 0 ? (totalCost * mins / totalMins).toFixed(2) : '';
-
-    const row = document.createElement('div');
-    row.className = 'player-row';
-    row.innerHTML = `
-      <input type="text" value="${p.name||''}" placeholder="Name" onchange="updatePlayer(${i}, 'name', this.value)">
-      <input type="time" value="${p.start||''}" onchange="updatePlayer(${i}, 'start', this.value)">
-      <input type="time" value="${p.end||''}" onchange="updatePlayer(${i}, 'end', this.value)">
-      <input type="number" value="${mins||''}" readonly placeholder="Min">
-      <input type="number" value="${cost}" readonly placeholder="Cost">
-      <button class="small" onclick="removePlayer(${i})">✖</button>
-    `;
-    playersDiv.appendChild(row);
-  });
-
-  calc();
-}
-
-function updatePlayer(i, key, value) {
-  players[i][key] = value;
-  save();
-  renderPlayers();
-}
+let players = [];
 
 function addPlayer() {
-  players.push({name:'', start:'', end:''});
-  save();
-  renderPlayers();
+  const tbody = document.querySelector("#playerTable tbody");
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="time" onchange="updateCosts()"></td>
+    <td><input type="time" onchange="updateCosts()"></td>
+    <td class="minutes">0</td>
+    <td class="cost">0</td>
+    <td><button class="remove-btn" onclick="removePlayer(this)">✕</button></td>
+  `;
+
+  tbody.appendChild(row);
+  updateCosts();
 }
 
-function removePlayer(i) {
-  players.splice(i, 1);
-  save();
-  renderPlayers();
+function removePlayer(btn) {
+  btn.closest("tr").remove();
+  updateCosts();
 }
 
-function save() {
-  localStorage.setItem('timeSplitterPlayers', JSON.stringify(players));
+function newSession() {
+  if (!confirm("Start a new session? All current data will be cleared.")) return;
+  document.querySelector("#playerTable tbody").innerHTML = "";
+  document.getElementById("sessionTime").textContent = "–";
+  players = [];
 }
 
-function calcMinutes(start, end) {
-  const s = new Date('1970-01-01T' + start + ':00');
-  const e = new Date('1970-01-01T' + end + ':00');
-  let diff = (e - s) / 60000;
-  if (diff < 0) diff += 1440;
-  return diff;
-}
+function updateCosts() {
+  const rows = document.querySelectorAll("#playerTable tbody tr");
+  let totalMinutes = 0;
+  let minStart = null, maxEnd = null;
 
-function calcTotalMinutes() {
-  return players.reduce((sum, p) => {
-    if (p.start && p.end) sum += calcMinutes(p.start, p.end);
-    return sum;
-  }, 0);
-}
+  rows.forEach(row => {
+    const start = row.children[1].querySelector("input").value;
+    const end = row.children[2].querySelector("input").value;
+    const minCell = row.querySelector(".minutes");
+    const costCell = row.querySelector(".cost");
 
-function calc() {
-  let totalMins = 0;
-  let minTime = null;
-  let maxTime = null;
-  players.forEach(p => {
-    if(p.start && p.end) {
-      const start = new Date('1970-01-01T' + p.start + ':00');
-      const end = new Date('1970-01-01T' + p.end + ':00');
-      let diff = (end - start) / 60000;
-      if (diff < 0) diff += 1440;
-      totalMins += diff;
-      if(!minTime || start < minTime) minTime = start;
-      if(!maxTime || end > maxTime) maxTime = end;
+    if (start && end) {
+      const diff = timeDiffMinutes(start, end);
+      minCell.textContent = diff;
+      totalMinutes += diff;
+      if (!minStart || start < minStart) minStart = start;
+      if (!maxEnd || end > maxEnd) maxEnd = end;
+    } else {
+      minCell.textContent = "0";
+      costCell.textContent = "0";
     }
   });
-  totalMinutesEl.textContent = totalMins;
-  sessionStartEl.textContent = minTime ? format24h(minTime) : '–';
-  sessionEndEl.textContent = maxTime ? format24h(maxTime) : '–';
-}
 
-document.getElementById('addPlayer').onclick = addPlayer;
-totalCostInput.oninput = renderPlayers;
-document.getElementById('exportCSV').onclick = () => {
-  const rows = [['Player','Joined','Left','Minutes','Cost']];
-  const totalMins = calcTotalMinutes();
-  const totalCost = parseFloat(totalCostInput.value) || 0;
-  players.forEach(p => {
-    const mins = (p.start && p.end) ? calcMinutes(p.start, p.end) : '';
-    const cost = totalMins > 0 ? (totalCost * mins / totalMins).toFixed(2) : '';
-    rows.push([p.name, p.start, p.end, mins, cost]);
+  const totalCost = parseFloat(document.getElementById("totalCost").value) || 0;
+  const costPerMinute = totalMinutes > 0 ? totalCost / totalMinutes : 0;
+
+  rows.forEach(row => {
+    const mins = parseFloat(row.querySelector(".minutes").textContent) || 0;
+    const playerCost = (mins * costPerMinute).toFixed(2);
+    row.querySelector(".cost").textContent = playerCost;
   });
-  const csv = rows.map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'time-splitter.csv'; a.click();
-  URL.revokeObjectURL(url);
-};
 
-if ('serviceWorker' in navigator) {
-  const sw = `
-  self.addEventListener('install', e => e.waitUntil(caches.open('ts-cache').then(c => c.addAll(['./']))));
-  self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-  `;
-  const blob = new Blob([sw], {type:'text/javascript'});
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl);
+  document.getElementById("sessionTime").textContent = minStart && maxEnd ? `${minStart} → ${maxEnd}` : "–";
 }
 
-renderPlayers();
+function timeDiffMinutes(start, end) {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  return (eh * 60 + em) - (sh * 60 + sm);
+}
 </script>
 </body>
 </html>
