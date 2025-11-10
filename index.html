@@ -78,7 +78,7 @@
 
   #header-row {
     display: grid;
-    grid-template-columns: 1.4fr 0.7fr 0.7fr 0.6fr 0.8fr auto;
+    grid-template-columns: 1.3fr 0.65fr 0.65fr 0.5fr 0.7fr auto;
     font-weight: 600;
     text-align: center;
     font-size: 0.8rem;
@@ -88,7 +88,7 @@
 
   .player-row {
     display: grid;
-    grid-template-columns: 1.4fr 0.7fr 0.7fr 0.6fr 0.8fr auto;
+    grid-template-columns: 1.3fr 0.65fr 0.65fr 0.5fr 0.7fr auto;
     align-items: center;
     gap: 4px;
     background: var(--card-bg);
@@ -114,7 +114,7 @@
 
   @media (max-width: 600px) {
     #header-row, .player-row {
-      grid-template-columns: 1fr 0.6fr 0.6fr 0.5fr 0.7fr auto;
+      grid-template-columns: 1fr 0.55fr 0.55fr 0.5fr 0.7fr auto;
       font-size: 0.8rem;
     }
   }
@@ -126,6 +126,7 @@
     <button id="addPlayer">+ Player</button>
     <button id="exportCSV">Export CSV</button>
     <input type="number" id="totalCost" placeholder="Total Cost" style="flex:1; min-width:100px;">
+    <button id="newSession" style="background:#e11d48;">New Session</button>
     <button id="toggleTheme" style="background:#444;">🌗</button>
   </div>
 
@@ -161,6 +162,15 @@ document.getElementById('toggleTheme').onclick = () => {
   document.body.classList.toggle('dark');
   darkMode = document.body.classList.contains('dark');
   localStorage.setItem('timeSplitterDark', darkMode);
+};
+
+document.getElementById('newSession').onclick = () => {
+  if (confirm('Start a new session? This will clear all player data.')) {
+    players = [];
+    localStorage.removeItem('timeSplitterPlayers');
+    totalCostInput.value = '';
+    renderPlayers();
+  }
 };
 
 function renderPlayers() {
@@ -248,7 +258,7 @@ function calc() {
 document.getElementById('addPlayer').onclick = addPlayer;
 totalCostInput.oninput = renderPlayers;
 document.getElementById('exportCSV').onclick = () => {
-  const rows = [['Player','Start','End','Minutes','Cost']];
+  const rows = [['Player','Joined','Left','Minutes','Cost']];
   const totalMins = calcTotalMinutes();
   const totalCost = parseFloat(totalCostInput.value) || 0;
   players.forEach(p => {
