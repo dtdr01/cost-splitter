@@ -46,13 +46,24 @@
     overflow: hidden;
     font-size: 14px;
     transition: background 0.3s;
+    /* --- UPDATED: Use fixed layout to enforce column widths --- */
+    table-layout: fixed;
   }
   th, td {
     padding: 4px 6px;
     text-align: center;
+    vertical-align: middle; /* Ensures content is centered vertically */
     border-bottom: 1px solid var(--border-color);
     transition: border-color 0.3s;
   }
+  /* --- UPDATED: Set specific widths for each column --- */
+  #playerTable th:nth-child(1) { width: 25%; } /* Player */
+  #playerTable th:nth-child(2) { width: 30%; } /* Joined */
+  #playerTable th:nth-child(3) { width: 30%; } /* Left */
+  #playerTable th:nth-child(4) { width: 7%; }  /* Min */
+  #playerTable th:nth-child(5) { width: auto; } /* Cost */
+  #playerTable th:nth-child(6) { width: 12%; } /* Remove button */
+  
   th {
     background: var(--header-bg);
     color: var(--header-color);
@@ -61,7 +72,9 @@
   }
   tr:last-child td { border-bottom: none; }
   input[type="text"], input[type="number"], input[type="time"] {
-    width: 90%;
+    /* --- UPDATED: Inputs fill more of the cell and use box-sizing --- */
+    width: 95%;
+    box-sizing: border-box;
     padding: 2px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -85,7 +98,6 @@
   .add-btn { background: var(--primary-accent); color: white; }
   .remove-btn { background: #ff6666; color: white; padding: 2px 6px; }
   .new-session { background: #999; color: white; float: right; }
-  /* --- NEW: Style for Export Button --- */
   .export-btn { background: #28a745; color: white; }
   .summary {
     margin-top: 10px;
@@ -125,7 +137,6 @@
 
 <div style="margin-bottom:8px;">
   <button class="add-btn" onclick="addPlayer()">+ Player</button>
-  <!-- --- NEW: Export Button Added --- -->
   <button class="export-btn" onclick="exportToCSV()">Export CSV</button>
   <button class="new-session" onclick="showNewSessionConfirm()">New Session</button>
 </div>
@@ -286,7 +297,6 @@ function timeDiffMinutes(start, end) {
   return diff < 0 ? diff + 1440 : diff;
 }
 
-// --- NEW: Function to handle CSV export ---
 function exportToCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
     const headers = ["Player", "Joined", "Left", "Minutes", "Cost"];
@@ -294,7 +304,7 @@ function exportToCSV() {
 
     const rows = document.querySelectorAll("#playerTable tbody tr");
     rows.forEach(row => {
-        const name = `"${row.children[0].querySelector("input").value}"`; // Wrap in quotes
+        const name = `"${row.children[0].querySelector("input").value.replace(/"/g, '""')}"`;
         const joined = row.children[1].querySelector("input").value;
         const left = row.children[2].querySelector("input").value;
         const minutes = row.querySelector(".minutes").textContent;
@@ -303,16 +313,13 @@ function exportToCSV() {
         csvContent += [name, joined, left, minutes, cost].join(",") + "\r\n";
     });
     
-    // Add summary row
     const totalCost = document.getElementById('totalCost').value || "0";
-    const sessionTime = document.getElementById('sessionTime').textContent;
-    csvContent += "\r\n";
-    csvContent += `Total Cost,${totalCost},Session,"${sessionTime}"\r\n`;
+    const sessionTime = `"${document.getElementById('sessionTime').textContent}"`;
+    csvContent += "\r\nTotal Cost," + totalCost + ",Session," + sessionTime + "\r\n";
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    
     const date = new Date().toISOString().slice(0, 10);
     link.setAttribute("download", `cost-splitter-data_${date}.csv`);
     document.body.appendChild(link);
