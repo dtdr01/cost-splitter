@@ -46,23 +46,22 @@
     overflow: hidden;
     font-size: 14px;
     transition: background 0.3s;
-    /* --- UPDATED: Use fixed layout to enforce column widths --- */
     table-layout: fixed;
   }
   th, td {
-    padding: 4px 6px;
+    padding: 4px 3px; /* Adjusted padding */
     text-align: center;
-    vertical-align: middle; /* Ensures content is centered vertically */
+    vertical-align: middle;
     border-bottom: 1px solid var(--border-color);
     transition: border-color 0.3s;
   }
-  /* --- UPDATED: Set specific widths for each column --- */
-  #playerTable th:nth-child(1) { width: 25%; } /* Player */
-  #playerTable th:nth-child(2) { width: 30%; } /* Joined */
-  #playerTable th:nth-child(3) { width: 30%; } /* Left */
-  #playerTable th:nth-child(4) { width: 7%; }  /* Min */
-  #playerTable th:nth-child(5) { width: auto; } /* Cost */
-  #playerTable th:nth-child(6) { width: 12%; } /* Remove button */
+  /* --- UPDATED: Corrected column widths --- */
+  #playerTable th:nth-child(1) { width: 22%; } /* Player */
+  #playerTable th:nth-child(2) { width: 26%; } /* Joined */
+  #playerTable th:nth-child(3) { width: 26%; } /* Left */
+  #playerTable th:nth-child(4) { width: 8%; }  /* Min */
+  #playerTable th:nth-child(5) { width: 12%; } /* Cost */
+  #playerTable th:nth-child(6) { width: 6%; }  /* Remove button (just holds a symbol) */
   
   th {
     background: var(--header-bg);
@@ -72,7 +71,6 @@
   }
   tr:last-child td { border-bottom: none; }
   input[type="text"], input[type="number"], input[type="time"] {
-    /* --- UPDATED: Inputs fill more of the cell and use box-sizing --- */
     width: 95%;
     box-sizing: border-box;
     padding: 2px;
