@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+print("""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -49,19 +49,18 @@
     table-layout: fixed;
   }
   th, td {
-    padding: 4px 3px; /* Adjusted padding */
+    padding: 4px 3px;
     text-align: center;
     vertical-align: middle;
     border-bottom: 1px solid var(--border-color);
     transition: border-color 0.3s;
   }
-  /* --- UPDATED: Corrected column widths --- */
-  #playerTable th:nth-child(1) { width: 22%; } /* Player */
-  #playerTable th:nth-child(2) { width: 26%; } /* Joined */
-  #playerTable th:nth-child(3) { width: 26%; } /* Left */
+  #playerTable th:nth-child(1) { width: 20%; } /* Player */
+  #playerTable th:nth-child(2) { width: 28%; } /* Joined */
+  #playerTable th:nth-child(3) { width: 28%; } /* Left */
   #playerTable th:nth-child(4) { width: 8%; }  /* Min */
-  #playerTable th:nth-child(5) { width: 12%; } /* Cost */
-  #playerTable th:nth-child(6) { width: 6%; }  /* Remove button (just holds a symbol) */
+  #playerTable th:nth-child(5) { width: 10%; } /* Cost */
+  #playerTable th:nth-child(6) { width: 6%; }  /* Remove button */
   
   th {
     background: var(--header-bg);
@@ -73,7 +72,7 @@
   input[type="text"], input[type="number"], input[type="time"] {
     width: 95%;
     box-sizing: border-box;
-    padding: 2px;
+    padding: 3px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 13px;
@@ -84,6 +83,10 @@
   .time-input {
     text-align: left;
     font-variant-numeric: tabular-nums;
+  }
+  /* --- NEW: Hide the time input's picker arrow to save space --- */
+  .time-input::-webkit-calendar-picker-indicator {
+    display: none;
   }
   button {
     border: none;
@@ -298,7 +301,7 @@ function timeDiffMinutes(start, end) {
 function exportToCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
     const headers = ["Player", "Joined", "Left", "Minutes", "Cost"];
-    csvContent += headers.join(",") + "\r\n";
+    csvContent += headers.join(",") + "\\r\\n";
 
     const rows = document.querySelectorAll("#playerTable tbody tr");
     rows.forEach(row => {
@@ -308,12 +311,12 @@ function exportToCSV() {
         const minutes = row.querySelector(".minutes").textContent;
         const cost = row.querySelector(".cost").textContent;
         
-        csvContent += [name, joined, left, minutes, cost].join(",") + "\r\n";
+        csvContent += [name, joined, left, minutes, cost].join(",") + "\\r\\n";
     });
     
     const totalCost = document.getElementById('totalCost').value || "0";
     const sessionTime = `"${document.getElementById('sessionTime').textContent}"`;
-    csvContent += "\r\nTotal Cost," + totalCost + ",Session," + sessionTime + "\r\n";
+    csvContent += "\\r\\nTotal Cost," + totalCost + ",Session," + sessionTime + "\\r\\n";
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -338,3 +341,4 @@ function loadTheme() {
 </script>
 </body>
 </html>
+""")
